@@ -1,8 +1,19 @@
+import os
+from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
-from .main import app
+from flask_sqlalchemy import SQLAlchemy
 
 
+app = Flask(__name__)
+
+if os.environ.get('FLASK_CONFIG'):
+    app.config.from_envvar('FLASK_CONFIG')
+else:
+    app.config.from_object('flask_config_debug')
+
+
+db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 

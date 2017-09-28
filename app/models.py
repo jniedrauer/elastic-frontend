@@ -20,5 +20,5 @@ class User(db.Model):
 
     # [...] columns and properties
 
-    def is_correct_password(self, plaintext)
+    def is_correct_password(self, plaintext):
         return bcrypt.check_password_hash(self._password, plaintext)
