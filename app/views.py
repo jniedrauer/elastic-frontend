@@ -2,14 +2,13 @@ from flask import redirect, render_template, url_for
 from flask_login import login_user, logout_user
 from . import app, db
 from .forms import EmailPasswordForm, UsernamePasswordForm
-from .util import ts, send_email
+from .util.email import send_email
 from .models import User
 
 
 @app.route('/')
 def main():
-    index_path = os.path.join(app.static_folder, 'index.html')
-    return send_file(index_path)
+    print('hello')
 
 
 @app.route('/accounts/create', methods=['GET', 'POST'])
@@ -74,7 +73,7 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@app.route('signin', methods=['GET', 'POST'])
+@app.route('/signin', methods=['GET', 'POST'])
 def signin():
     form = UsernamePasswordForm()
 
@@ -99,7 +98,7 @@ def signout():
 @app.route('/reset', methods=['GET', 'POST'])
 def reset():
     form = EmailForm()
-    if form.validate_on_submit()
+    if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first_or_404()
 
         subject = 'Password reset requested'

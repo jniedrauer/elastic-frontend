@@ -26,3 +26,5 @@ login_manager.login_view ='signin'
 @login_manager.user_loader
 def load_user(userid):
     return User.query.filter(User.id==userid).first()
+
+from . import views
