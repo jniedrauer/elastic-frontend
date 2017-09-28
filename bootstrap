@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+if ! which python3.5 >/dev/null 2>&1; then
+    echo Python3.5 not found. Aborting
+    exit 1
+fi
+
+if ! python3.5 -c 'import pip' >/dev/null 2>&1; then
+    echo Pip not found. Aborting
+fi
+
+if ! python3.5 -c 'import virtualenv' >/dev/null 2>&1; then
+    echo Installing virtualenv
+    pip install --user virtualenv
+else
+    echo Nothing to do
+fi
