@@ -1,20 +1,20 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, TextField, PasswordField
 from wtforms.validators import DataRequired, Email
 
 
-class UsernamePasswordForm(Form):
+class UsernamePasswordForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
-class EmailPasswordForm(Form):
+class EmailPasswordForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
 
-class EmailForm(Form):
+class EmailForm(FlaskForm):
     email = TextField('Email', validators=[DataRequired(), Email()])
 
 
-class PasswordForm(Form):
+class PasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
