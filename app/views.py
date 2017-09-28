@@ -1,14 +1,14 @@
 from flask import redirect, render_template, url_for
 from flask_login import login_user, logout_user
 from . import app, db
-from .forms import EmailPasswordForm, UsernamePasswordForm
+from .forms import EmailForm, EmailPasswordForm, UsernamePasswordForm
 from .util.email import send_email
 from .models import User
 
 
 @app.route('/')
-def main():
-    print('hello')
+def index():
+    return 'hello'
 
 
 @app.route('/accounts/create', methods=['GET', 'POST'])
@@ -58,7 +58,7 @@ def confirm_email(token):
     db.session.add(user)
     db.session.commit()
 
-    return redirect(url_for('signin'))
+    return redirect(url_for('login'))
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -73,8 +73,8 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     form = UsernamePasswordForm()
 
     if form.validate_on_submit():
@@ -84,12 +84,12 @@ def signin():
 
             return redirect(url_for('index'))
         else:
-            return redirect(url_for('signin'))
-    return render_template('signin.html', form=form)
+            return redirect(url_for('login'))
+    return render_template('login.html', form=form)
 
 
-@app.route('/signout')
-def signout():
+@app.route('/logout')
+def logout():
     logout_user()
 
     return redirect(url_for('index'))
@@ -140,6 +140,6 @@ def reset_with_token(token):
         db.session.add(user)
         db.session.commit()
 
-        return redirect(url_for('signin'))
+        return redirect(url_for('login'))
 
     return render_template('reset_with_token.html', form=form, token=token)

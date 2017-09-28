@@ -3,11 +3,12 @@ from wtforms import StringField, TextField, PasswordField
 from wtforms.validators import DataRequired, Email
 
 
-class UsernamePasswordForm(FlaskForm):
+class EmailPasswordForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
-class EmailPasswordForm(FlaskForm):
+
+class UsernamePasswordForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
