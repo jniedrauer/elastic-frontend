@@ -1,10 +1,20 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<form action='{{ url_for('create_account') }}' method='POST'>
-    {{ form.email.label }}: {{ form.email }}<br>
-    {{ form.password.label }}: {{ form.password }}<br>
-    {{ form.csrf_token }}
-    <input type='submit' value='Send Invitation Email' />
-</form>
+<h2>Send account invite</h2>
+
+<div class='form-layout'>
+    <form action='{{ url_for('auth.create_account') }}' method='POST'>
+        <div class='form-group '>
+            {{ form.email.label }}
+            {{ form.email(class_='form-control textbox', placeholder='Enter Email') }}
+        </div>
+        <div class='form-group '>
+            {{ form.password.label }}
+            {{ form.password(class_='form-control textbox', placeholder='Enter Password') }}
+        </div>
+        {{ form.csrf_token }}
+        <input type='submit' value='Send Invite' class='submit-btn' />
+    </form>
+</div>
 {% endblock %}
