@@ -1,20 +1,24 @@
 from flask import redirect, render_template, url_for
-from flask_login import login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from . import app, db
-from .forms import EmailForm, EmailPasswordForm, UsernamePasswordForm
-from .util.email import send_email
+from .forms import EmailForm, EmailPasswordForm, PasswordForm
+from .util import ts, send_email
 from .models import User
 
 
 @app.route('/')
 def index():
-    return 'hello'
+    if current_user.is_authenticated:
+        return 'authenticated'
+    else:
+        return redirect('/login', code=302)
 
 
 @app.route('/accounts/create', methods=['GET', 'POST'])
 def create_account():
     form = EmailPasswordForm()
     if form.validate_on_submit():
+        app.logger.info('User registered: %s', form.email.data)
         user = User(
             email = form.email.data,
             password = form.password.data
@@ -25,7 +29,7 @@ def create_account():
         # Now we'll send the email confirmation link
         subject = 'Confirm your email'
 
-        token = ts.dumps(self.email, salt='email-confirm-key')
+        token = ts.dumps(form.email.data, salt=app.config['INVITE_KEY'])
 
         confirm_url = url_for(
             'confirm_email',
@@ -34,20 +38,23 @@ def create_account():
 
         html = render_template(
             'email/activate.html',
-            confirm_url=confirm_url)
+            confirm_url=confirm_url,
+            admin_email=app.config['ADMIN_EMAIL'])
 
-        # We'll assume that send_email has been defined in myapp/util.py
-        send_email(user.email, subject, html)
+        success = send_email(form.email.data, subject, html, logger=app.logger)
+        if not success:
+            app.logger.error('Email send failed')
 
         return redirect(url_for('index'))
 
+    app.logger.info('Invalid entry')
     return render_template('accounts/create.html', form=form)
 
 
 @app.route('/confirm/<token>')
 def confirm_email(token):
     try:
-        email = ts.loads(token, salt='email-confirm-key', max_age=86400)
+        email = ts.loads(token, salt=app.config['INVITE_KEY'], max_age=86400)
     except:
         abort(404)
 
@@ -61,24 +68,13 @@ def confirm_email(token):
     return redirect(url_for('login'))
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    form = EmailPasswordForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, password=form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for('index'))
-
-    return render_template('signup.html', form=form)
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = UsernamePasswordForm()
+    form = EmailPasswordForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first_or_404()
+        app.logger.debug('Login attempt for %s', form.email.data)
+        user = User.query.filter_by(email=form.email.data).first_or_404()
         if user.is_correct_password(form.password.data):
             login_user(user)
 
@@ -103,9 +99,7 @@ def reset():
 
         subject = 'Password reset requested'
 
-        # Here we use the URLSafeTimedSerializer we created in `util` at the
-        # beginning of the chapter
-        token = ts.dumps(user.email, salt='recover-key')
+        token = ts.dumps(user.email, salt=app.config['RESET_KEY'])
 
         recover_url = url_for(
             'reset_with_token',
@@ -114,10 +108,10 @@ def reset():
 
         html = render_template(
             'email/recover.html',
-            recover_url=recover_url)
+            recover_url=recover_url,
+            admin_email=app.config['ADMIN_EMAIL'])
 
-        # Let's assume that send_email was defined in myapp/util.py
-        send_email(user.email, subject, html)
+        send_email(user.email, subject, html, logger=app.logger)
 
         return redirect(url_for('index'))
     return render_template('reset.html', form=form)
@@ -126,7 +120,7 @@ def reset():
 @app.route('/reset/<token>', methods=['GET', 'POST'])
 def reset_with_token(token):
     try:
-        email = ts.loads(token, salt='recover-key', max_age=86400)
+        email = ts.loads(token, salt=app.config['RESET_KEY'], max_age=86400)
     except:
         abort(404)
 

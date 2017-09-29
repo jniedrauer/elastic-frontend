@@ -8,11 +8,6 @@ class EmailPasswordForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
 
-class UsernamePasswordForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-
-
 class EmailForm(FlaskForm):
     email = TextField('Email', validators=[DataRequired(), Email()])
 

@@ -10,6 +10,8 @@ itsdangerous==0.24
 Jinja2==2.9.6
 MarkupSafe==1.0
 pycparser==2.18
+python-http-client==3.0.0
+sendgrid==5.2.0
 six==1.11.0
 SQLAlchemy==1.1.14
 Werkzeug==0.12.2
