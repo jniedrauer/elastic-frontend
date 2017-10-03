@@ -1,5 +1,5 @@
 import datetime
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
 from sqlalchemy.ext.hybrid import hybrid_property
 from . import bcrypt, db
 

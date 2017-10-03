@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, render_template, redirect, url_for
+from flask import current_app, Blueprint, jsonify, render_template, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
@@ -16,6 +16,12 @@ def load_user(userid):
     return User.query.filter(User.id==userid).first()
 
 
+@auth.route('/auth')
+def get_auth():
+    codes = {True: 200, False: 401}
+    return jsonify({'loggedIn': current_user.is_authenticated}), codes[current_user.is_authenticated]
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = EmailPasswordForm()
@@ -25,11 +31,10 @@ def login():
         user = User.query.filter_by(email=form.email.data).first_or_404()
         if user.is_correct_password(form.password.data):
             login_user(user)
-
             return redirect(url_for('index'))
         else:
-            return redirect(url_for('auth.login'))
-    return render_template('login.html', form=form)
+            return redirect(url_for('auth.login', failed=True))
+    return render_template('login.html', form=form, failed=request.args.get('failed'))
 
 
 @auth.route('/logout')
